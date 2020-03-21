@@ -1,5 +1,4 @@
 #![allow(non_snake_case)]
-#![allow(dead_code)]
 
 //!
 //! Parsing of ABNF Core Rules
@@ -7,58 +6,15 @@
 //! See https://tools.ietf.org/html/rfc5234#appendix-B.1
 //!
 
-use nom::{
-    branch::alt,
-    bytes::complete::tag,
-    character::complete::{char, one_of},
-    combinator::recognize,
-    error::{ErrorKind, ParseError},
-    multi::many0,
-    sequence::tuple,
-    Err, IResult,
-};
-
-fn one<'a, E: ParseError<&'a str>, F: Fn(char) -> bool>(
-    input: &'a str,
-    f: F,
-) -> IResult<&'a str, char, E> {
-    if input.is_empty() {
-        return Err(Err::Error(ParseError::from_error_kind(
-            input,
-            ErrorKind::OneOf,
-        )));
-    }
-
-    let mut chars = input.chars();
-    let first = chars.next().unwrap();
-
-    if f(first) {
-        Ok((chars.as_str(), first))
-    } else {
-        Err(Err::Error(ParseError::from_error_kind(
-            input,
-            ErrorKind::OneOf,
-        )))
-    }
-}
-
-/// ALPHA = %x41-5A / %x61-7A ; A-Z / a-z
-pub fn ALPHA<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one(input, is_ALPHA)
-}
+pub mod complete;
+//pub mod streaming; // (NIY)
 
 pub fn is_ALPHA(c: char) -> bool {
     c.is_ascii_alphabetic()
 }
 
-/// BIT = "0" / "1"
-pub fn BIT<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one_of("01")(input)
-}
-
-/// CHAR = %x01-7F ; any 7-bit US-ASCII character, excluding NUL
-pub fn CHAR<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one(input, is_CHAR)
+pub fn is_BIT(c: char) -> bool {
+    c == '0' || c == '1'
 }
 
 pub fn is_CHAR(c: char) -> bool {
@@ -68,22 +24,11 @@ pub fn is_CHAR(c: char) -> bool {
     }
 }
 
-/// CR = %x0D ; carriage return
-pub fn CR<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    char('\r')(input)
+pub fn is_CR(c: char) -> bool {
+    c == '\r'
 }
 
-/// CRLF = CR LF ; Internet standard newline
-pub fn CRLF<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
-    // This function accepts both, LF and CRLF
-    // FIXME: ?
-    alt((tag("\r\n"), tag("\n")))(input)
-}
-
-/// CTL = %x00-1F / %x7F ; controls
-pub fn CTL<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one(input, is_CTL)
-}
+// CRLF
 
 pub fn is_CTL(c: char) -> bool {
     match c {
@@ -92,73 +37,31 @@ pub fn is_CTL(c: char) -> bool {
     }
 }
 
-/// DIGIT = %x30-39 ; 0-9
-pub fn DIGIT<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one_of("0123456789")(input)
-}
-
 pub fn is_DIGIT(c: char) -> bool {
     c.is_ascii_digit()
 }
 
-/// DQUOTE = %x22 ; " (Double Quote)
-pub fn DQUOTE<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    char('"')(input)
-}
-
-/// HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
-pub fn HEXDIG<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one(input, is_HEXDIG)
+pub fn is_DQUOTE(c: char) -> bool {
+    c == '"'
 }
 
 pub fn is_HEXDIG(c: char) -> bool {
     c.is_ascii_hexdigit()
 }
 
-/// HTAB = %x09 ; horizontal tab
-pub fn HTAB<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    char('\t')(input)
-}
+// HTAB
 
-/// LF = %x0A ; linefeed
-pub fn LF<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    char('\n')(input)
-}
+// LF
 
-/// LWSP = *(WSP / CRLF WSP)
-///         ; Use of this linear-white-space rule
-///         ;  permits lines containing only white
-///         ;  space that are no longer legal in
-///         ;  mail headers and have caused
-///         ;  interoperability problems in other
-///         ;  contexts.
-///         ; Do not use when defining mail
-///         ;  headers and use with caution in
-///         ;  other contexts.
-pub fn LWSP<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
-    let parser = recognize(many0(alt((recognize(WSP), recognize(tuple((CRLF, WSP)))))));
+// LWSP
 
-    parser(input)
-}
+// OCTET
 
-/// OCTET = %x00-FF ; 8 bits of data
-pub fn OCTET(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    if input.is_empty() {
-        Err(Err::Error((input, nom::error::ErrorKind::Char)))
-    } else {
-        Ok((&input[1..], &input[0..1]))
-    }
-}
+// SP
 
-/// SP = %x20
-pub fn SP<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    char(' ')(input)
-}
+// VCHAR
 
-/// VCHAR = %x21-7E ; visible (printing) characters
-pub fn VCHAR<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one(input, is_VCHAR)
-}
+// WSP
 
 pub fn is_VCHAR(c: char) -> bool {
     match c {
@@ -167,42 +70,9 @@ pub fn is_VCHAR(c: char) -> bool {
     }
 }
 
-/// WSP = SP / HTAB ; white space
-pub fn WSP<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    alt((SP, HTAB))(input)
-}
-
 pub fn is_WSP(c: char) -> bool {
     match c {
         '\x20' | '\x09' => true,
         _ => false,
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use nom::error::VerboseError;
-
-    #[test]
-    fn test_BIT() {
-        assert_eq!(BIT::<VerboseError<&str>>("100"), Ok(("00", '1')));
-        assert_eq!(BIT::<VerboseError<&str>>("010"), Ok(("10", '0')));
-        assert!(BIT::<VerboseError<&str>>("").is_err());
-        assert!(BIT::<VerboseError<&str>>("/").is_err());
-        assert!(BIT::<VerboseError<&str>>("2").is_err());
-    }
-
-    #[test]
-    fn test_HEXDIG() {
-        assert_eq!(HEXDIG::<VerboseError<&str>>("FaA"), Ok(("aA", 'F')));
-        assert_eq!(HEXDIG::<VerboseError<&str>>("0aA"), Ok(("aA", '0')));
-        assert!(HEXDIG::<VerboseError<&str>>("").is_err());
-        assert!(HEXDIG::<VerboseError<&str>>("/").is_err());
-        assert!(HEXDIG::<VerboseError<&str>>(":").is_err());
-        assert!(HEXDIG::<VerboseError<&str>>("`").is_err());
-        assert!(HEXDIG::<VerboseError<&str>>("g").is_err());
-        assert!(HEXDIG::<VerboseError<&str>>("@").is_err());
-        assert!(HEXDIG::<VerboseError<&str>>("G").is_err());
     }
 }
