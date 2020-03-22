@@ -2,7 +2,7 @@ use crate::*;
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete::{char, one_of},
+    character::complete::{char, line_ending, one_of},
     combinator::recognize,
     error::{ErrorKind, ParseError},
     multi::many0,
@@ -35,7 +35,7 @@ pub fn crlf_strict<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a st
 }
 
 pub fn crlf_relaxed<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
-    alt((tag("\r\n"), tag("\n")))(input)
+    line_ending(input)
 }
 
 /// CRLF = CR LF ; Internet standard newline
