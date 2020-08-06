@@ -7,7 +7,7 @@
 //!
 
 pub mod complete;
-//pub mod streaming; // (NIY)
+pub mod streaming;
 
 pub fn is_ALPHA(c: char) -> bool {
     c.is_ascii_alphabetic()
