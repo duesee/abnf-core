@@ -93,7 +93,10 @@ pub fn LWSP<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str
 /// OCTET = %x00-FF ; 8 bits of data
 pub fn OCTET(input: &[u8]) -> IResult<&[u8], &[u8]> {
     if input.is_empty() {
-        Err(Err::Error((input, nom::error::ErrorKind::Char)))
+        Err(Err::Error(nom::error::Error::new(
+            input,
+            nom::error::ErrorKind::Char,
+        )))
     } else {
         Ok((&input[1..], &input[0..1]))
     }
