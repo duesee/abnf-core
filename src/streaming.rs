@@ -24,10 +24,7 @@ pub fn is_BIT(byte: u8) -> bool {
 ///
 /// CHAR = %x01-7F
 pub fn is_CHAR(byte: u8) -> bool {
-    match byte {
-        0x01..=0x7f => true,
-        _ => false,
-    }
+    matches!(byte, 0x01..=0x7f)
 }
 
 /// Carriage return
@@ -53,10 +50,7 @@ pub fn CRLF_relaxed(input: &[u8]) -> IResult<&[u8], &[u8]> {
 ///
 /// CTL = %x00-1F / %x7F
 pub fn is_CTL(byte: u8) -> bool {
-    match byte {
-        0x00..=0x1f | 0x7f => true,
-        _ => false,
-    }
+    matches!(byte, 0x00..=0x1f | 0x7f)
 }
 
 /// 0-9
@@ -113,10 +107,7 @@ pub fn SP(input: &[u8]) -> IResult<&[u8], &[u8]> {
 ///
 /// VCHAR = %x21-7E
 pub fn is_VCHAR(byte: u8) -> bool {
-    match byte {
-        0x21..=0x7E => true,
-        _ => false,
-    }
+    matches!(byte, 0x21..=0x7E)
 }
 
 /// White space

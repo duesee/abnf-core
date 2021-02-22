@@ -18,10 +18,7 @@ pub fn is_BIT(c: char) -> bool {
 }
 
 pub fn is_CHAR(c: char) -> bool {
-    match c {
-        '\x01'..='\x7F' => true,
-        _ => false,
-    }
+    matches!(c, '\x01'..='\x7F')
 }
 
 pub fn is_CR(c: char) -> bool {
@@ -31,10 +28,7 @@ pub fn is_CR(c: char) -> bool {
 // CRLF
 
 pub fn is_CTL(c: char) -> bool {
-    match c {
-        '\x00'..='\x1F' | '\x7F' => true,
-        _ => false,
-    }
+    matches!(c, '\x00'..='\x1F' | '\x7F')
 }
 
 pub fn is_DIGIT(c: char) -> bool {
@@ -64,15 +58,9 @@ pub fn is_HEXDIG(c: char) -> bool {
 // WSP
 
 pub fn is_VCHAR(c: char) -> bool {
-    match c {
-        '\x21'..='\x7E' => true,
-        _ => false,
-    }
+    matches!(c, '\x21'..='\x7E')
 }
 
 pub fn is_WSP(c: char) -> bool {
-    match c {
-        '\x20' | '\x09' => true,
-        _ => false,
-    }
+    matches!(c, '\x20' | '\x09')
 }
