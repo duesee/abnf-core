@@ -3,8 +3,10 @@
 use nom::{
     branch::alt,
     bytes::streaming::tag,
-    character::streaming::line_ending,
-    character::{is_alphabetic, is_digit as nom_is_digit, is_hex_digit as nom_is_hex_digit},
+    character::{
+        is_alphabetic, is_digit as nom_is_digit, is_hex_digit as nom_is_hex_digit,
+        streaming::line_ending,
+    },
     IResult,
 };
 

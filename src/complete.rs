@@ -1,4 +1,3 @@
-use crate::*;
 use nom::{
     branch::alt,
     bytes::complete::tag,
@@ -9,6 +8,8 @@ use nom::{
     sequence::tuple,
     Err, IResult,
 };
+
+use crate::*;
 
 /// ALPHA = %x41-5A / %x61-7A ; A-Z / a-z
 pub fn ALPHA<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
@@ -144,8 +145,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use nom::error::VerboseError;
+
+    use super::*;
 
     #[test]
     fn test_ALPHA() {
