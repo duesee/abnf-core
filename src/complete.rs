@@ -1,29 +1,29 @@
 use nom::{
     branch::alt,
-    bytes::complete::tag,
-    character::complete::{char, line_ending, one_of},
-    combinator::recognize,
-    error::{ErrorKind, ParseError},
-    multi::many0,
-    sequence::tuple,
-    Err, IResult,
+    bytes::complete::{tag, take},
+    character::complete::{anychar, char, line_ending},
+    combinator::{opt, recognize, verify},
+    error::ParseError,
+    multi::many0_count,
+    sequence::terminated,
+    IResult,
 };
 
 use crate::*;
 
 /// ALPHA = %x41-5A / %x61-7A ; A-Z / a-z
 pub fn ALPHA<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one(input, is_ALPHA)
+    verify(anychar, |&c| is_ALPHA(c))(input)
 }
 
 /// BIT = "0" / "1"
 pub fn BIT<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one_of("01")(input)
+    verify(anychar, |&c| is_BIT(c))(input)
 }
 
 /// CHAR = %x01-7F ; any 7-bit US-ASCII character, excluding NUL
 pub fn CHAR<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one(input, is_CHAR)
+    verify(anychar, |&c| is_CHAR(c))(input)
 }
 
 /// CR = %x0D ; carriage return
@@ -49,12 +49,12 @@ pub fn CRLF<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str
 
 /// CTL = %x00-1F / %x7F ; controls
 pub fn CTL<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one(input, is_CTL)
+    verify(anychar, |&c| is_CTL(c))(input)
 }
 
 /// DIGIT = %x30-39 ; 0-9
 pub fn DIGIT<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one(input, is_DIGIT)
+    verify(anychar, |&c| is_DIGIT(c))(input)
 }
 
 /// DQUOTE = %x22 ; " (Double Quote)
@@ -64,7 +64,7 @@ pub fn DQUOTE<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, ch
 
 /// HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 pub fn HEXDIG<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one(input, is_HEXDIG)
+    verify(anychar, |&c| is_HEXDIG(c))(input)
 }
 
 /// HTAB = %x09 ; horizontal tab
@@ -87,20 +87,14 @@ pub fn LF<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, 
 ///         ; Do not use when defining mail
 ///         ;  headers and use with caution in
 ///         ;  other contexts.
+// code as equivalent avoid branching LWSP = *([CRLF] WSP)
 pub fn LWSP<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
-    recognize(many0(alt((recognize(WSP), recognize(tuple((CRLF, WSP)))))))(input)
+    recognize(many0_count(terminated(opt(CRLF), WSP)))(input)
 }
 
 /// OCTET = %x00-FF ; 8 bits of data
 pub fn OCTET(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    if input.is_empty() {
-        Err(Err::Error(nom::error::Error::new(
-            input,
-            nom::error::ErrorKind::Char,
-        )))
-    } else {
-        Ok((&input[1..], &input[0..1]))
-    }
+    take(1usize)(input)
 }
 
 /// SP = %x20
@@ -110,37 +104,12 @@ pub fn SP<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, 
 
 /// VCHAR = %x21-7E ; visible (printing) characters
 pub fn VCHAR<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    one(input, is_VCHAR)
+    verify(anychar, |&c| is_VCHAR(c))(input)
 }
 
 /// WSP = SP / HTAB ; white space
 pub fn WSP<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
     alt((SP, HTAB))(input)
-}
-
-fn one<'a, E, F>(input: &'a str, predicate: F) -> IResult<&'a str, char, E>
-where
-    E: ParseError<&'a str>,
-    F: Fn(char) -> bool,
-{
-    let mut chars = input.chars();
-
-    match chars.next() {
-        Some(first) => {
-            if predicate(first) {
-                Ok((chars.as_str(), first))
-            } else {
-                Err(Err::Error(ParseError::from_error_kind(
-                    input,
-                    ErrorKind::IsNot,
-                )))
-            }
-        }
-        None => Err(Err::Error(ParseError::from_error_kind(
-            input,
-            ErrorKind::Eof,
-        ))),
-    }
 }
 
 #[cfg(test)]
