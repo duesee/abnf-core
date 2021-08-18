@@ -1,7 +1,7 @@
 use nom::{
     branch::alt,
     bytes::complete::{tag, take},
-    character::complete::{anychar, char, line_ending},
+    character::complete::{self as character, anychar, line_ending},
     combinator::{opt, recognize, verify},
     error::ParseError,
     multi::many0_count,
@@ -12,23 +12,23 @@ use nom::{
 use crate::*;
 
 /// ALPHA = %x41-5A / %x61-7A ; A-Z / a-z
-pub fn ALPHA<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    verify(anychar, |&c| is_ALPHA(c))(input)
+pub fn alpha<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    verify(anychar, |&c| is_alpha(c))(input)
 }
 
 /// BIT = "0" / "1"
-pub fn BIT<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    verify(anychar, |&c| is_BIT(c))(input)
+pub fn bit<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    verify(anychar, |&c| is_bit(c))(input)
 }
 
 /// CHAR = %x01-7F ; any 7-bit US-ASCII character, excluding NUL
-pub fn CHAR<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    verify(anychar, |&c| is_CHAR(c))(input)
+pub fn char<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    verify(anychar, |&c| is_char(c))(input)
 }
 
 /// CR = %x0D ; carriage return
-pub fn CR<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    char('\r')(input)
+pub fn cr<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    character::char('\r')(input)
 }
 
 pub fn crlf_strict<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
@@ -43,38 +43,38 @@ pub fn crlf_relaxed<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a s
 ///
 /// Note: this variant will strictly expect "\r\n".
 /// Use [crlf_relaxed](fn.crlf_relaxed.html) to accept "\r\n" as well as only "\n".
-pub fn CRLF<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
+pub fn crlf<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
     crlf_strict(input)
 }
 
 /// CTL = %x00-1F / %x7F ; controls
-pub fn CTL<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    verify(anychar, |&c| is_CTL(c))(input)
+pub fn ctl<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    verify(anychar, |&c| is_ctl(c))(input)
 }
 
 /// DIGIT = %x30-39 ; 0-9
-pub fn DIGIT<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    verify(anychar, |&c| is_DIGIT(c))(input)
+pub fn digit<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    verify(anychar, |&c| is_digit(c))(input)
 }
 
 /// DQUOTE = %x22 ; " (Double Quote)
-pub fn DQUOTE<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    char('"')(input)
+pub fn dquote<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    character::char('"')(input)
 }
 
 /// HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
-pub fn HEXDIG<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    verify(anychar, |&c| is_HEXDIG(c))(input)
+pub fn hexdig<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    verify(anychar, |&c| is_hexdig(c))(input)
 }
 
 /// HTAB = %x09 ; horizontal tab
-pub fn HTAB<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    char('\t')(input)
+pub fn htab<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    character::char('\t')(input)
 }
 
 /// LF = %x0A ; linefeed
-pub fn LF<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    char('\n')(input)
+pub fn lf<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    character::char('\n')(input)
 }
 
 /// LWSP = *(WSP / CRLF WSP)
@@ -88,28 +88,28 @@ pub fn LF<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, 
 ///         ;  headers and use with caution in
 ///         ;  other contexts.
 // code as equivalent avoid branching LWSP = *([CRLF] WSP)
-pub fn LWSP<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
-    recognize(many0_count(terminated(opt(CRLF), WSP)))(input)
+pub fn lwsp<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
+    recognize(many0_count(terminated(opt(crlf), wsp)))(input)
 }
 
 /// OCTET = %x00-FF ; 8 bits of data
-pub fn OCTET(input: &[u8]) -> IResult<&[u8], &[u8]> {
+pub fn octet(input: &[u8]) -> IResult<&[u8], &[u8]> {
     take(1usize)(input)
 }
 
 /// SP = %x20
-pub fn SP<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    char(' ')(input)
+pub fn sp<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    character::char(' ')(input)
 }
 
 /// VCHAR = %x21-7E ; visible (printing) characters
-pub fn VCHAR<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    verify(anychar, |&c| is_VCHAR(c))(input)
+pub fn vchar<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    verify(anychar, |&c| is_vchar(c))(input)
 }
 
 /// WSP = SP / HTAB ; white space
-pub fn WSP<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
-    alt((SP, HTAB))(input)
+pub fn wsp<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, char, E> {
+    alt((sp, htab))(input)
 }
 
 #[cfg(test)]
@@ -119,47 +119,47 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_ALPHA() {
-        assert!(ALPHA::<VerboseError<&str>>("").is_err());
+    fn test_alpha() {
+        assert!(alpha::<VerboseError<&str>>("").is_err());
 
-        assert!(ALPHA::<VerboseError<&str>>("`").is_err());
-        assert_eq!(ALPHA::<VerboseError<&str>>("a"), Ok(("", 'a')));
-        assert_eq!(ALPHA::<VerboseError<&str>>("z"), Ok(("", 'z')));
-        assert!(ALPHA::<VerboseError<&str>>("{").is_err());
+        assert!(alpha::<VerboseError<&str>>("`").is_err());
+        assert_eq!(alpha::<VerboseError<&str>>("a"), Ok(("", 'a')));
+        assert_eq!(alpha::<VerboseError<&str>>("z"), Ok(("", 'z')));
+        assert!(alpha::<VerboseError<&str>>("{").is_err());
 
-        assert!(ALPHA::<VerboseError<&str>>("@").is_err());
-        assert_eq!(ALPHA::<VerboseError<&str>>("A"), Ok(("", 'A')));
-        assert_eq!(ALPHA::<VerboseError<&str>>("Z"), Ok(("", 'Z')));
-        assert!(ALPHA::<VerboseError<&str>>("[").is_err());
+        assert!(alpha::<VerboseError<&str>>("@").is_err());
+        assert_eq!(alpha::<VerboseError<&str>>("A"), Ok(("", 'A')));
+        assert_eq!(alpha::<VerboseError<&str>>("Z"), Ok(("", 'Z')));
+        assert!(alpha::<VerboseError<&str>>("[").is_err());
     }
 
     #[test]
-    fn test_BIT() {
-        assert!(BIT::<VerboseError<&str>>("").is_err());
+    fn test_bit() {
+        assert!(bit::<VerboseError<&str>>("").is_err());
 
-        assert!(BIT::<VerboseError<&str>>("/").is_err());
-        assert_eq!(BIT::<VerboseError<&str>>("0"), Ok(("", '0')));
-        assert_eq!(BIT::<VerboseError<&str>>("1"), Ok(("", '1')));
-        assert!(BIT::<VerboseError<&str>>("2").is_err());
+        assert!(bit::<VerboseError<&str>>("/").is_err());
+        assert_eq!(bit::<VerboseError<&str>>("0"), Ok(("", '0')));
+        assert_eq!(bit::<VerboseError<&str>>("1"), Ok(("", '1')));
+        assert!(bit::<VerboseError<&str>>("2").is_err());
     }
 
     #[test]
-    fn test_CHAR() {
-        assert!(CHAR::<VerboseError<&str>>("").is_err());
+    fn test_char() {
+        assert!(char::<VerboseError<&str>>("").is_err());
 
-        assert!(CHAR::<VerboseError<&str>>("\x00").is_err());
-        assert_eq!(CHAR::<VerboseError<&str>>("\x01"), Ok(("", '\x01')));
-        assert_eq!(CHAR::<VerboseError<&str>>("\x7f"), Ok(("", '\x7f')));
-        assert!(CHAR::<VerboseError<&str>>("\u{80}").is_err());
+        assert!(char::<VerboseError<&str>>("\x00").is_err());
+        assert_eq!(char::<VerboseError<&str>>("\x01"), Ok(("", '\x01')));
+        assert_eq!(char::<VerboseError<&str>>("\x7f"), Ok(("", '\x7f')));
+        assert!(char::<VerboseError<&str>>("\u{80}").is_err());
     }
 
     #[test]
-    fn test_CR() {
-        assert!(CR::<VerboseError<&str>>("").is_err());
+    fn test_cr() {
+        assert!(cr::<VerboseError<&str>>("").is_err());
 
-        assert!(CR::<VerboseError<&str>>("\x0c").is_err());
-        assert_eq!(CR::<VerboseError<&str>>("\r"), Ok(("", '\r')));
-        assert!(CR::<VerboseError<&str>>("\x0e").is_err());
+        assert!(cr::<VerboseError<&str>>("\x0c").is_err());
+        assert_eq!(cr::<VerboseError<&str>>("\r"), Ok(("", '\r')));
+        assert!(cr::<VerboseError<&str>>("\x0e").is_err());
     }
 
     #[test]
@@ -193,46 +193,46 @@ mod tests {
     }
 
     #[test]
-    fn test_CTL() {
-        assert!(CTL::<VerboseError<&str>>("").is_err());
+    fn test_ctl() {
+        assert!(ctl::<VerboseError<&str>>("").is_err());
 
-        assert!(CTL::<VerboseError<&str>>("\x00").is_ok());
-        assert!(CTL::<VerboseError<&str>>("\x1f").is_ok());
-        assert!(CTL::<VerboseError<&str>>("\x20").is_err());
-        assert!(CTL::<VerboseError<&str>>("\x7f").is_ok());
-        assert!(CTL::<VerboseError<&str>>("\u{80}").is_err());
+        assert!(ctl::<VerboseError<&str>>("\x00").is_ok());
+        assert!(ctl::<VerboseError<&str>>("\x1f").is_ok());
+        assert!(ctl::<VerboseError<&str>>("\x20").is_err());
+        assert!(ctl::<VerboseError<&str>>("\x7f").is_ok());
+        assert!(ctl::<VerboseError<&str>>("\u{80}").is_err());
     }
 
     #[test]
-    fn test_DIGIT() {
-        assert!(DIGIT::<VerboseError<&str>>("").is_err());
+    fn test_digit() {
+        assert!(digit::<VerboseError<&str>>("").is_err());
 
-        assert!(DIGIT::<VerboseError<&str>>("/").is_err());
-        assert_eq!(DIGIT::<VerboseError<&str>>("0"), Ok(("", '0')));
-        assert_eq!(DIGIT::<VerboseError<&str>>("9"), Ok(("", '9')));
-        assert!(DIGIT::<VerboseError<&str>>(":").is_err());
+        assert!(digit::<VerboseError<&str>>("/").is_err());
+        assert_eq!(digit::<VerboseError<&str>>("0"), Ok(("", '0')));
+        assert_eq!(digit::<VerboseError<&str>>("9"), Ok(("", '9')));
+        assert!(digit::<VerboseError<&str>>(":").is_err());
     }
 
     // DQUOTE
 
     #[test]
-    fn test_HEXDIG() {
-        assert!(HEXDIG::<VerboseError<&str>>("").is_err());
+    fn test_hexdig() {
+        assert!(hexdig::<VerboseError<&str>>("").is_err());
 
-        assert!(HEXDIG::<VerboseError<&str>>("/").is_err());
-        assert_eq!(HEXDIG::<VerboseError<&str>>("0"), Ok(("", '0')));
-        assert_eq!(HEXDIG::<VerboseError<&str>>("9"), Ok(("", '9')));
-        assert!(HEXDIG::<VerboseError<&str>>(":").is_err());
+        assert!(hexdig::<VerboseError<&str>>("/").is_err());
+        assert_eq!(hexdig::<VerboseError<&str>>("0"), Ok(("", '0')));
+        assert_eq!(hexdig::<VerboseError<&str>>("9"), Ok(("", '9')));
+        assert!(hexdig::<VerboseError<&str>>(":").is_err());
 
-        assert!(HEXDIG::<VerboseError<&str>>("`").is_err());
-        assert_eq!(HEXDIG::<VerboseError<&str>>("a"), Ok(("", 'a')));
-        assert_eq!(HEXDIG::<VerboseError<&str>>("f"), Ok(("", 'f')));
-        assert!(HEXDIG::<VerboseError<&str>>("g").is_err());
+        assert!(hexdig::<VerboseError<&str>>("`").is_err());
+        assert_eq!(hexdig::<VerboseError<&str>>("a"), Ok(("", 'a')));
+        assert_eq!(hexdig::<VerboseError<&str>>("f"), Ok(("", 'f')));
+        assert!(hexdig::<VerboseError<&str>>("g").is_err());
 
-        assert!(HEXDIG::<VerboseError<&str>>("@").is_err());
-        assert_eq!(HEXDIG::<VerboseError<&str>>("A"), Ok(("", 'A')));
-        assert_eq!(HEXDIG::<VerboseError<&str>>("F"), Ok(("", 'F')));
-        assert!(HEXDIG::<VerboseError<&str>>("G").is_err());
+        assert!(hexdig::<VerboseError<&str>>("@").is_err());
+        assert_eq!(hexdig::<VerboseError<&str>>("A"), Ok(("", 'A')));
+        assert_eq!(hexdig::<VerboseError<&str>>("F"), Ok(("", 'F')));
+        assert!(hexdig::<VerboseError<&str>>("G").is_err());
     }
 
     // HTAB
