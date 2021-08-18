@@ -11,58 +11,239 @@ pub mod streaming;
 
 use nom::AsChar;
 
+/// A-Z / a-z
+///
+/// ALPHA = %x41-5A / %x61-7A
 pub fn is_alpha(c: impl AsChar) -> bool {
-    c.is_alpha()
+    matches!(c.as_char(), '\x41'..='\x5A' | '\x61'..='\x7A')
 }
 
+#[test]
+fn test_is_alpha() {
+    assert!(is_alpha(b'a'));
+    assert!(is_alpha('A'));
+    assert!(is_alpha('z'));
+    assert!(is_alpha('Z'));
+    assert!(!is_alpha('0'));
+    assert!(!is_alpha('9'));
+    assert!(!is_alpha('#'));
+}
+
+/// BIT = "0" / "1"
+/// BIT = %x30 / %x31
 pub fn is_bit(c: impl AsChar) -> bool {
-    matches!(c.as_char(), '0' | '1')
+    matches!(c.as_char(), '\x30'..='\x31')
 }
 
+#[test]
+fn test_is_bit() {
+    assert!(is_bit(b'0'));
+    assert!(is_bit('1'));
+    assert!(!is_bit('2'));
+    assert!(!is_bit('a'));
+    assert!(!is_bit('A'));
+    assert!(!is_bit('z'));
+    assert!(!is_bit('Z'));
+    assert!(!is_bit('#'));
+}
+
+/// Any 7-bit US-ASCII character, excluding NUL
+///
+/// CHAR = %x01-7F
 pub fn is_char(c: impl AsChar) -> bool {
     matches!(c.as_char(), '\x01'..='\x7F')
 }
 
-pub fn is_cr(c: impl AsChar) -> bool {
-    c.as_char() == '\r'
+#[test]
+fn test_is_char() {
+    assert!(is_char(b'a'));
+    assert!(is_char('A'));
+    assert!(is_char('z'));
+    assert!(is_char('Z'));
+    assert!(is_char('\x7F'));
+    assert!(!is_char('\x00'));
 }
 
-// CRLF
+/// Carriage return
+///
+/// CR = %x0D
+pub fn is_cr(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x0D')
+}
 
+#[test]
+fn test_is_cr() {
+    assert!(is_cr(b'\r'));
+    assert!(!is_cr('\n'));
+    assert!(!is_cr('a'));
+    assert!(!is_cr('A'));
+    assert!(!is_cr('z'));
+    assert!(!is_cr('Z'));
+}
+
+/// Controls
+///
+/// CTL = %x00-1F / %x7F
 pub fn is_ctl(c: impl AsChar) -> bool {
     matches!(c.as_char(), '\x00'..='\x1F' | '\x7F')
 }
 
+#[test]
+fn test_is_ctl() {
+    assert!(is_ctl(b'\x00'));
+    assert!(is_ctl('\x1F'));
+    assert!(is_ctl('\x7F'));
+    assert!(!is_ctl('a'));
+    assert!(!is_ctl('A'));
+    assert!(!is_ctl('z'));
+    assert!(!is_ctl('Z'));
+}
+
+/// 0-9
+///
+/// DIGIT = %x30-39
 pub fn is_digit(c: impl AsChar) -> bool {
-    c.is_dec_digit()
+    matches!(c.as_char(), '\x30'..='\x39')
 }
 
+#[test]
+fn test_is_digit() {
+    assert!(is_digit(b'0'));
+    assert!(is_digit('9'));
+    assert!(!is_digit('a'));
+    assert!(!is_digit('A'));
+    assert!(!is_digit('z'));
+    assert!(!is_digit('Z'));
+}
+
+/// " (Double Quote)
+///
+/// DQUOTE = %x22
 pub fn is_dquote(c: impl AsChar) -> bool {
-    c.as_char() == '"'
+    matches!(c.as_char(), '\x22')
 }
 
+#[test]
+fn test_is_dquote() {
+    assert!(is_dquote(b'"'));
+    assert!(!is_dquote('\''));
+    assert!(!is_dquote('a'));
+    assert!(!is_dquote('A'));
+    assert!(!is_dquote('z'));
+    assert!(!is_dquote('Z'));
+}
+
+/// HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 pub fn is_hexdig(c: impl AsChar) -> bool {
-    c.is_hex_digit()
+    matches!(c.as_char(), '0'..='9' | 'a'..='f' | 'A'..='F')
 }
 
-// HTAB
+#[test]
+fn test_is_hexdige() {
+    assert!(is_hexdig(b'0'));
+    assert!(is_hexdig('9'));
+    assert!(is_hexdig('a'));
+    assert!(is_hexdig('f'));
+    assert!(is_hexdig('A'));
+    assert!(is_hexdig('F'));
+    assert!(!is_hexdig('z'));
+    assert!(!is_hexdig('Z'));
+}
 
-// LF
+/// horizontal tab
+///
+/// HTAB = %x09
+pub fn is_htab(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x09')
+}
 
-// LWSP
+#[test]
+fn test_is_htab() {
+    assert!(is_htab(b'\t'));
+    assert!(!is_dquote(' '));
+    assert!(!is_dquote('a'));
+    assert!(!is_dquote('A'));
+    assert!(!is_dquote('z'));
+    assert!(!is_dquote('Z'));
+}
 
-// OCTET
+/// linefeed
+///
+/// LF = %x0A
+pub fn is_lf(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x0A')
+}
 
-// SP
+#[test]
+fn test_is_lf() {
+    assert!(is_lf(b'\n'));
+    assert!(!is_lf('\r'));
+    assert!(!is_lf('a'));
+    assert!(!is_lf('A'));
+    assert!(!is_lf('z'));
+    assert!(!is_lf('Z'));
+}
 
-// VCHAR
 
-// WSP
+/// 8 bits of data
+///
+/// OCTET = %x00-FF
+pub fn is_octet(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x00'..='\x7F')
+}
 
+#[test]
+fn test_is_octet() {
+    assert!(is_octet(b'\x00'));
+    assert!(is_octet('\x7F'));
+    assert!(!is_octet('π'));
+}
+
+/// space
+///
+/// SP = %x20
+pub fn is_sp(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x20')
+}
+
+#[test]
+fn test_is_sp() {
+    assert!(is_sp(b' '));
+    assert!(!is_sp('\t'));
+    assert!(!is_sp('a'));
+    assert!(!is_sp('A'));
+    assert!(!is_sp('z'));
+    assert!(!is_sp('Z'));
+}
+
+/// Visible (printing) characters
+///
+/// VCHAR = %x21-7E
 pub fn is_vchar(c: impl AsChar) -> bool {
     matches!(c.as_char(), '\x21'..='\x7E')
 }
 
+#[test]
+fn test_is_vchar() {
+    assert!(is_vchar(b'!'));
+    assert!(is_vchar('~'));
+    assert!(!is_vchar('\x20'));
+    assert!(!is_vchar('\x7F'));
+}
+
+/// White space
+///
+/// WSP = SP / HTAB
 pub fn is_wsp(c: impl AsChar) -> bool {
     matches!(c.as_char(), '\x20' | '\x09')
+}
+
+#[test]
+fn test_is_wsp() {
+    assert!(is_wsp(b' '));
+    assert!(is_wsp('\t'));
+    assert!(!is_wsp('a'));
+    assert!(!is_wsp('A'));
+    assert!(!is_wsp('z'));
+    assert!(!is_wsp('Z'));
 }
