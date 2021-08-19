@@ -19,7 +19,7 @@ use crate::{
 /// ALPHA = %x41-5A / %x61-7A ; A-Z / a-z
 pub fn alpha<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -29,7 +29,7 @@ where
 /// BIT = "0" / "1"
 pub fn bit<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -39,7 +39,7 @@ where
 /// CHAR = %x01-7F ; any 7-bit US-ASCII character, excluding NUL
 pub fn char<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -51,7 +51,7 @@ where
 /// CR = %x0D
 pub fn cr<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -66,7 +66,7 @@ where
 /// Use [crlf_relaxed](fn.crlf_relaxed.html) to accept "\r\n" as well as only "\n".
 pub fn crlf<I, E>(input: I) -> IResult<I, (char, char), E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -76,7 +76,7 @@ where
 /// Newline, with and without "\r".
 pub fn crlf_relaxed<I, E>(input: I) -> IResult<I, (Option<char>, char), E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>> + Clone,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -86,7 +86,7 @@ where
 /// CTL = %x00-1F / %x7F ; controls
 pub fn ctl<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -96,7 +96,7 @@ where
 /// DIGIT = %x30-39 ; 0-9
 pub fn digit<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -108,7 +108,7 @@ where
 /// DQUOTE = %x22
 pub fn dquote<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -118,7 +118,7 @@ where
 /// HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
 pub fn hexdig<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -130,7 +130,7 @@ where
 /// HTAB = %x09
 pub fn htab<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -142,7 +142,7 @@ where
 /// LF = %x0A
 pub fn lf<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -171,10 +171,10 @@ where
     I: Clone
         + Offset
         + PartialEq
-        + InputLength
         + InputIter
         + Slice<RangeTo<usize>>
-        + Slice<RangeFrom<usize>>,
+        + Slice<RangeFrom<usize>>
+        + InputLength,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -198,7 +198,7 @@ where
 /// SP = %x20
 pub fn sp<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -208,7 +208,7 @@ where
 /// VCHAR = %x21-7E ; visible (printing) characters
 pub fn vchar<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
@@ -218,7 +218,7 @@ where
 /// WSP = SP / HTAB ; white space
 pub fn wsp<I, E>(input: I) -> IResult<I, char, E>
 where
-    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    I: InputIter + Slice<RangeFrom<usize>>,
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
