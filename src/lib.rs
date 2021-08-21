@@ -39,6 +39,7 @@ pub fn is_cr(c: impl AsChar) -> bool {
 }
 
 // CRLF
+// Not implemented as predicate.
 
 /// Controls
 ///
@@ -66,15 +67,36 @@ pub fn is_hexdig(c: impl AsChar) -> bool {
     matches!(c.as_char(), '0'..='9' | 'a'..='f' | 'A'..='F')
 }
 
-// HTAB
+/// Horizontal tab
+///
+/// HTAB = %x09
+pub fn is_htab(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x09')
+}
 
-// LF
+/// Linefeed
+///
+/// LF = %x0A
+pub fn is_lf(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x0A')
+}
 
 // LWSP
+// Not implemented as predicate.
 
-// OCTET
+/// 8 bits of data
+///
+/// OCTET = %x00-FF
+pub fn is_octet(_: u8) -> bool {
+    true
+}
 
-// SP
+/// Space
+///
+/// SP = %x20
+pub fn is_sp(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x20')
+}
 
 /// Visible (printing) characters
 ///
