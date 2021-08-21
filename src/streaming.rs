@@ -214,3 +214,19 @@ where
 {
     satisfy(is_wsp)(input)
 }
+
+#[cfg(test)]
+mod tests {
+    use nom::error::VerboseError;
+
+    use super::*;
+
+    #[test]
+    fn test_cr() {
+        assert!(cr::<_, VerboseError<_>>("\n").is_err());
+        assert_eq!(cr::<_, VerboseError<_>>("\r"), Ok(("", '\r')));
+
+        assert!(cr::<_, VerboseError<_>>(&b"\n"[..]).is_err());
+        assert_eq!(cr::<_, VerboseError<_>>(&b"\r"[..]), Ok((&b""[..], '\r')));
+    }
+}
