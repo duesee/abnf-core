@@ -1,13 +1,50 @@
 //! ABNF Core Rules (RFC5234 B.1.)
 
-use std::ops::RangeFrom;
+use std::ops::{RangeFrom, RangeTo};
 
 use nom::{
-    character::streaming::satisfy, combinator::opt, error::ParseError, sequence::pair, AsChar,
-    IResult, InputIter, InputLength, Slice,
+    character::streaming::satisfy,
+    combinator::{opt, recognize},
+    error::ParseError,
+    multi::many0_count,
+    sequence::{pair, terminated},
+    AsChar, Err as OutCome, IResult, InputIter, InputLength, Needed, Offset, Slice,
 };
 
-use crate::{is_char, is_cr, is_dquote, is_htab, is_lf, is_sp, is_wsp};
+use crate::{
+    is_alpha, is_bit, is_char, is_cr, is_ctl, is_digit, is_dquote, is_hexdig, is_htab, is_lf,
+    is_sp, is_wsp,
+};
+
+/// ALPHA = %x41-5A / %x61-7A ; A-Z / a-z
+pub fn alpha<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_alpha)(input)
+}
+
+/// BIT = "0" / "1"
+pub fn bit<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_bit)(input)
+}
+
+/// CHAR = %x01-7F ; any 7-bit US-ASCII character, excluding NUL
+pub fn char<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_char)(input)
+}
 
 /// Carriage return
 ///
@@ -46,6 +83,26 @@ where
     pair(opt(satisfy(is_cr)), satisfy(is_lf))(input)
 }
 
+/// CTL = %x00-1F / %x7F ; controls
+pub fn ctl<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_ctl)(input)
+}
+
+/// DIGIT = %x30-39 ; 0-9
+pub fn digit<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_digit)(input)
+}
+
 /// Double Quote
 ///
 /// DQUOTE = %x22
@@ -56,6 +113,16 @@ where
     E: ParseError<I>,
 {
     satisfy(is_dquote)(input)
+}
+
+/// HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+pub fn hexdig<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_hexdig)(input)
 }
 
 /// Horizontal tab
@@ -89,10 +156,32 @@ where
 /// Do not use when defining mail headers and use with caution in other contexts.
 ///
 /// LWSP = *(WSP / CRLF WSP)
+pub fn lwsp<I, E>(input: I) -> IResult<I, I, E>
+where
+    I: Clone
+        + Offset
+        + PartialEq
+        + InputLength
+        + InputIter
+        + Slice<RangeTo<usize>>
+        + Slice<RangeFrom<usize>>,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    // code as equivalent avoid branching LWSP = *([CRLF] WSP)
+    recognize(many0_count(terminated(opt(crlf), wsp)))(input)
+}
 
-/// 8 bits of data
-///
-/// OCTET = %x00-FF
+/// OCTET = %x00-FF ; 8 bits of data
+pub fn octet<E>(input: &[u8]) -> IResult<&[u8], u8, E>
+where
+    for<'a> E: ParseError<&'a [u8]>,
+{
+    match input.split_first() {
+        None => Err(OutCome::Incomplete(Needed::new(1))),
+        Some((&b, tail)) => Ok((tail, b)),
+    }
+}
 
 /// SP = %x20
 pub fn sp<I, E>(input: I) -> IResult<I, char, E>
