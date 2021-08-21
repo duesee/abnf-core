@@ -112,3 +112,144 @@ pub fn is_vchar(c: impl AsChar) -> bool {
 pub fn is_wsp(c: impl AsChar) -> bool {
     matches!(c.as_char(), '\x20' | '\x09')
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_alpha() {
+        assert!(is_alpha(b'a'));
+        assert!(is_alpha('A'));
+        assert!(is_alpha('z'));
+        assert!(is_alpha('Z'));
+        assert!(!is_alpha('0'));
+        assert!(!is_alpha('9'));
+        assert!(!is_alpha('#'));
+    }
+
+    #[test]
+    fn test_is_bit() {
+        assert!(is_bit(b'0'));
+        assert!(is_bit('1'));
+        assert!(!is_bit('2'));
+        assert!(!is_bit('a'));
+        assert!(!is_bit('A'));
+        assert!(!is_bit('z'));
+        assert!(!is_bit('Z'));
+        assert!(!is_bit('#'));
+    }
+
+    #[test]
+    fn test_is_char() {
+        assert!(is_char(b'a'));
+        assert!(is_char('A'));
+        assert!(is_char('z'));
+        assert!(is_char('Z'));
+        assert!(is_char('\x7F'));
+        assert!(!is_char('\x00'));
+    }
+
+    #[test]
+    fn test_is_cr() {
+        assert!(is_cr(b'\r'));
+        assert!(!is_cr('\n'));
+        assert!(!is_cr('a'));
+        assert!(!is_cr('A'));
+        assert!(!is_cr('z'));
+        assert!(!is_cr('Z'));
+    }
+
+    #[test]
+    fn test_is_ctl() {
+        assert!(is_ctl(b'\x00'));
+        assert!(is_ctl('\x1F'));
+        assert!(is_ctl('\x7F'));
+        assert!(!is_ctl('a'));
+        assert!(!is_ctl('A'));
+        assert!(!is_ctl('z'));
+        assert!(!is_ctl('Z'));
+    }
+
+    #[test]
+    fn test_is_digit() {
+        assert!(is_digit(b'0'));
+        assert!(is_digit('9'));
+        assert!(!is_digit('a'));
+        assert!(!is_digit('A'));
+        assert!(!is_digit('z'));
+        assert!(!is_digit('Z'));
+    }
+
+    #[test]
+    fn test_is_dquote() {
+        assert!(is_dquote(b'"'));
+        assert!(!is_dquote('\''));
+        assert!(!is_dquote('a'));
+        assert!(!is_dquote('A'));
+        assert!(!is_dquote('z'));
+        assert!(!is_dquote('Z'));
+    }
+
+    #[test]
+    fn test_is_hexdig() {
+        assert!(is_hexdig(b'0'));
+        assert!(is_hexdig('9'));
+        assert!(is_hexdig('a'));
+        assert!(is_hexdig('f'));
+        assert!(is_hexdig('A'));
+        assert!(is_hexdig('F'));
+        assert!(!is_hexdig('z'));
+        assert!(!is_hexdig('Z'));
+    }
+
+    #[test]
+    fn test_is_htab() {
+        assert!(is_htab(b'\t'));
+    }
+
+    #[test]
+    fn test_is_lf() {
+        assert!(is_lf(b'\n'));
+        assert!(!is_lf('\r'));
+        assert!(!is_lf('a'));
+        assert!(!is_lf('A'));
+        assert!(!is_lf('z'));
+        assert!(!is_lf('Z'));
+    }
+
+    #[test]
+    fn test_is_octet() {
+        assert!(is_octet(0x00));
+        assert!(is_octet(0x7F));
+        assert!(is_octet(0xFF));
+    }
+
+    #[test]
+    fn test_is_sp() {
+        assert!(is_sp(b' '));
+        assert!(!is_sp('\t'));
+        assert!(!is_sp('a'));
+        assert!(!is_sp('A'));
+        assert!(!is_sp('z'));
+        assert!(!is_sp('Z'));
+    }
+
+    #[test]
+    fn test_is_vchar() {
+        assert!(is_vchar(b'!'));
+        assert!(is_vchar('~'));
+        assert!(!is_vchar('\x20'));
+        assert!(!is_vchar('\x7F'));
+    }
+
+    #[test]
+    fn test_is_wsp() {
+        assert!(is_wsp(b' '));
+        assert!(is_wsp('\t'));
+        assert!(!is_wsp('a'));
+        assert!(!is_wsp('A'));
+        assert!(!is_wsp('z'));
+        assert!(!is_wsp('Z'));
+    }
+}
