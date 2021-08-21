@@ -1,45 +1,82 @@
 //! ABNF Core Rules (RFC5234 B.1.)
 
-use nom::{branch::alt, bytes::streaming::tag, character::streaming::line_ending, IResult};
+use std::ops::RangeFrom;
+
+use nom::{
+    character::streaming::satisfy, combinator::opt, error::ParseError, sequence::pair, AsChar,
+    IResult, InputIter, InputLength, Slice,
+};
+
+use crate::{is_char, is_cr, is_dquote, is_htab, is_lf, is_sp, is_wsp};
 
 /// Carriage return
 ///
 /// CR = %x0D
-pub fn cr(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    tag("\r")(input)
+pub fn cr<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_cr)(input)
 }
 
 /// Internet standard newline
 ///
 /// CRLF = CR LF
-pub fn crlf(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    tag("\r\n")(input)
+pub fn crlf<I, E>(input: I) -> IResult<I, (char, char), E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    pair(satisfy(is_cr), satisfy(is_lf))(input)
 }
 
 /// Newline, with and without "\r".
-pub fn crlf_relaxed(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    line_ending(input)
+pub fn crlf_relaxed<I, E>(input: I) -> IResult<I, (Option<char>, char), E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    pair(opt(satisfy(is_cr)), satisfy(is_lf))(input)
 }
 
 /// Double Quote
 ///
 /// DQUOTE = %x22
-pub fn dquote(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    tag("\"")(input)
+pub fn dquote<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_dquote)(input)
 }
 
 /// Horizontal tab
 ///
 /// HTAB = %x09
-pub fn htab(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    tag("\x09")(input)
+pub fn htab<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_htab)(input)
 }
 
 /// Linefeed
 ///
 /// LF = %x0A
-pub fn lf(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    tag("\n")(input)
+pub fn lf<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_lf)(input)
 }
 
 /// Use of this linear-white-space rule permits lines containing only white
@@ -55,13 +92,33 @@ pub fn lf(input: &[u8]) -> IResult<&[u8], &[u8]> {
 /// OCTET = %x00-FF
 
 /// SP = %x20
-pub fn sp(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    tag(" ")(input)
+pub fn sp<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_sp)(input)
+}
+
+/// VCHAR = %x21-7E ; visible (printing) characters
+pub fn vchar<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_char)(input)
 }
 
 /// White space
 ///
 /// WSP = SP / HTAB
-pub fn wsp(input: &[u8]) -> IResult<&[u8], &[u8]> {
-    alt((sp, htab))(input)
+pub fn wsp<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_wsp)(input)
 }
