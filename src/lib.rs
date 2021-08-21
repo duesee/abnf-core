@@ -9,38 +9,61 @@
 pub mod complete;
 pub mod streaming;
 
-pub fn is_alpha(c: char) -> bool {
-    c.is_ascii_alphabetic()
+use nom::AsChar;
+
+/// A-Z / a-z
+///
+/// ALPHA = %x41-5A / %x61-7A
+pub fn is_alpha(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x41'..='\x5A' | '\x61'..='\x7A')
 }
 
-pub fn is_bit(c: char) -> bool {
-    c == '0' || c == '1'
+/// BIT = "0" / "1"
+/// BIT = %x30 / %x31
+pub fn is_bit(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x30'..='\x31')
 }
 
-pub fn is_char(c: char) -> bool {
-    matches!(c, '\x01'..='\x7F')
+/// Any 7-bit US-ASCII character, excluding NUL
+///
+/// CHAR = %x01-7F
+pub fn is_char(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x01'..='\x7F')
 }
 
-pub fn is_cr(c: char) -> bool {
-    c == '\r'
+/// Carriage return
+///
+/// CR = %x0D
+pub fn is_cr(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x0D')
 }
 
 // CRLF
 
-pub fn is_ctl(c: char) -> bool {
-    matches!(c, '\x00'..='\x1F' | '\x7F')
+/// Controls
+///
+/// CTL = %x00-1F / %x7F
+pub fn is_ctl(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x00'..='\x1F' | '\x7F')
 }
 
-pub fn is_digit(c: char) -> bool {
-    c.is_ascii_digit()
+/// 0-9
+///
+/// DIGIT = %x30-39
+pub fn is_digit(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x30'..='\x39')
 }
 
-pub fn is_dquote(c: char) -> bool {
-    c == '"'
+/// " (Double Quote)
+///
+/// DQUOTE = %x22
+pub fn is_dquote(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x22')
 }
 
-pub fn is_hexdig(c: char) -> bool {
-    c.is_ascii_hexdigit()
+/// HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+pub fn is_hexdig(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '0'..='9' | 'a'..='f' | 'A'..='F')
 }
 
 // HTAB
@@ -53,14 +76,16 @@ pub fn is_hexdig(c: char) -> bool {
 
 // SP
 
-// VCHAR
-
-// WSP
-
-pub fn is_vchar(c: char) -> bool {
-    matches!(c, '\x21'..='\x7E')
+/// Visible (printing) characters
+///
+/// VCHAR = %x21-7E
+pub fn is_vchar(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x21'..='\x7E')
 }
 
-pub fn is_wsp(c: char) -> bool {
-    matches!(c, '\x20' | '\x09')
+/// White space
+///
+/// WSP = SP / HTAB
+pub fn is_wsp(c: impl AsChar) -> bool {
+    matches!(c.as_char(), '\x20' | '\x09')
 }
