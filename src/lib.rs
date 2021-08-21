@@ -1,7 +1,7 @@
 //!
 //! Parsing of ABNF Core Rules
 //!
-//! See https://tools.ietf.org/html/rfc5234#appendix-B.1
+//! See <https://tools.ietf.org/html/rfc5234#appendix-B.1>
 //!
 
 pub mod complete;
@@ -53,7 +53,7 @@ pub fn is_digit(c: impl AsChar) -> bool {
     matches!(c.as_char(), '\x30'..='\x39')
 }
 
-/// " (Double Quote)
+/// Double Quote (")
 ///
 /// DQUOTE = %x22
 pub fn is_dquote(c: impl AsChar) -> bool {
@@ -61,6 +61,9 @@ pub fn is_dquote(c: impl AsChar) -> bool {
 }
 
 /// HEXDIG = DIGIT / "A" / "B" / "C" / "D" / "E" / "F"
+///
+/// Note: ABNF strings are case-insensitive so `a` / ... / `f` are allowed, too.
+/// Issue: <https://github.com/duesee/abnf-core/issues/12>
 pub fn is_hexdig(c: impl AsChar) -> bool {
     matches!(c.as_char(), '0'..='9' | 'a'..='f' | 'A'..='F')
 }

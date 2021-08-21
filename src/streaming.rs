@@ -24,6 +24,9 @@ where
 /// Internet standard newline
 ///
 /// CRLF = CR LF
+///
+/// Note: this variant will strictly expect "\r\n".
+/// Use [crlf_relaxed](fn.crlf_relaxed.html) to accept "\r\n" as well as only "\n".
 pub fn crlf<I, E>(input: I) -> IResult<I, (char, char), E>
 where
     I: InputLength + InputIter + Slice<RangeFrom<usize>> + Clone,
