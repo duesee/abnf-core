@@ -3,7 +3,6 @@
 use std::ops::{RangeFrom, RangeTo};
 
 use nom::{
-    bytes::complete::tag,
     character::complete::satisfy,
     combinator::{opt, recognize},
     error::{ErrorKind, ParseError},
@@ -54,10 +53,6 @@ where
     E: ParseError<I>,
 {
     satisfy(is_cr)(input)
-}
-
-pub fn crlf_strict<'a, E: ParseError<&'a str>>(input: &'a str) -> IResult<&'a str, &str, E> {
-    tag("\r\n")(input)
 }
 
 /// CRLF = CR LF ; Internet standard newline
