@@ -58,7 +58,9 @@ where
     satisfy(is_cr)(input)
 }
 
-/// CRLF = CR LF ; Internet standard newline
+/// Internet standard newline
+///
+/// CRLF = CR LF
 ///
 /// Note: this variant will strictly expect "\r\n".
 /// Use [crlf_relaxed](fn.crlf_relaxed.html) to accept "\r\n" as well as only "\n".
@@ -147,17 +149,13 @@ where
     satisfy(is_lf)(input)
 }
 
+/// Use of this linear-white-space rule permits lines containing only white
+/// space that are no longer legal in mail headers and have caused
+/// interoperability problems in other contexts.
+///
+/// Do not use when defining mail headers and use with caution in other contexts.
+///
 /// LWSP = *(WSP / CRLF WSP)
-///         ; Use of this linear-white-space rule
-///         ;  permits lines containing only white
-///         ;  space that are no longer legal in
-///         ;  mail headers and have caused
-///         ;  interoperability problems in other
-///         ;  contexts.
-///         ; Do not use when defining mail
-///         ;  headers and use with caution in
-///         ;  other contexts.
-// code as equivalent avoid branching LWSP = *([CRLF] WSP)
 pub fn lwsp<I, E>(input: I) -> IResult<I, I, E>
 where
     I: Clone
@@ -170,6 +168,7 @@ where
     <I as InputIter>::Item: AsChar,
     E: ParseError<I>,
 {
+    // code as equivalent avoid branching LWSP = *([CRLF] WSP)
     recognize(many0_count(terminated(opt(crlf), wsp)))(input)
 }
 
