@@ -1,5 +1,3 @@
-#![allow(non_snake_case)]
-
 //!
 //! Parsing of ABNF Core Rules
 //!
