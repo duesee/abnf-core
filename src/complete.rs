@@ -11,7 +11,10 @@ use nom::{
     AsChar, Err as OutCome, IResult, InputIter, InputLength, Offset, Slice,
 };
 
-use crate::*;
+use crate::{
+    is_alpha, is_bit, is_char, is_cr, is_ctl, is_digit, is_dquote, is_hexdig, is_htab, is_lf,
+    is_sp, is_wsp,
+};
 
 /// ALPHA = %x41-5A / %x61-7A ; A-Z / a-z
 pub fn alpha<I, E>(input: I) -> IResult<I, char, E>
