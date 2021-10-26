@@ -1,6 +1,6 @@
-![CI](https://github.com/duesee/abnf-core/actions/workflows/ci.yml/badge.svg)
-![Scheduled](https://github.com/duesee/abnf-core/actions/workflows/scheduled.yml/badge.svg)
-![Documentation](https://docs.rs/abnf-core/badge.svg)
+[![CI](https://github.com/duesee/abnf-core/actions/workflows/ci.yml/badge.svg)](https://github.com/duesee/abnf-core/actions/workflows/ci.yml)
+[![Scheduled](https://github.com/duesee/abnf-core/actions/workflows/scheduled.yml/badge.svg)](https://github.com/duesee/abnf-core/actions/workflows/scheduled.yml)
+[![docs](https://docs.rs/abnf-core/badge.svg)](https://docs.rs/abnf-core)
 
 # ABNF (Core Rules)
 
