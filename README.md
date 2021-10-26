@@ -1,11 +1,12 @@
 ![CI](https://github.com/duesee/abnf-core/actions/workflows/ci.yml/badge.svg)
 ![Scheduled](https://github.com/duesee/abnf-core/actions/workflows/scheduled.yml/badge.svg)
+![Documentation](https://docs.rs/abnf-core/badge.svg)
 
 # ABNF (Core Rules)
 
 A parser for ABNF core rules based on nom 7. It is primarily a building block
 for the [ABNF parsing crate](https://crates.io/crates/abnf), but should also be
-useful in itself.
+useful in itself. 
 
 ## License
 
