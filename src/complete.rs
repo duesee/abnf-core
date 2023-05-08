@@ -6,14 +6,14 @@ use nom::{
     character::complete::satisfy,
     combinator::{opt, recognize},
     error::{ErrorKind, ParseError},
-    multi::many0_count,
+    multi::{many0_count, many1_count},
     sequence::{pair, terminated},
     AsChar, Err as OutCome, IResult, InputIter, InputLength, Offset, Slice,
 };
 
 use crate::{
     is_alpha, is_bit, is_char, is_cr, is_ctl, is_digit, is_dquote, is_hexdig, is_htab, is_lf,
-    is_sp, is_wsp,
+    is_sp, is_tchar, is_wsp,
 };
 
 /// ALPHA = %x41-5A / %x61-7A ; A-Z / a-z
@@ -216,6 +216,28 @@ where
     satisfy(is_wsp)(input)
 }
 
+/// TCHAR = "!" / "#" / "$" / "%" / "&" / "'" / "*"
+///       / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~"
+///       / DIGIT / ALPHA
+pub fn tchar<I, E>(input: I) -> IResult<I, char, E>
+where
+    I: InputIter + Slice<RangeFrom<usize>>,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    satisfy(is_tchar)(input)
+}
+
+/// TOKEN = 1*TCHAR
+pub fn token<I, E>(input: I) -> IResult<I, I, E>
+where
+    I: InputIter + Slice<RangeFrom<usize>> + Slice<RangeTo<usize>> + Copy + InputLength + Offset,
+    <I as InputIter>::Item: AsChar,
+    E: ParseError<I>,
+{
+    recognize(many1_count(tchar))(input)
+}
+
 #[cfg(test)]
 mod tests {
     use nom::error::VerboseError;
@@ -361,4 +383,25 @@ mod tests {
     // VCHAR
 
     // WSP
+
+    #[test]
+    fn test_tchar() {
+        assert_eq!(tchar::<_, VerboseError<&str>>("mbbb"), Ok(("bbb", 'm')));
+        assert_eq!(tchar::<_, VerboseError<&str>>("!aa"), Ok(("aa", '!')));
+        assert!(tchar::<_, VerboseError<&str>>(",").is_err());
+    }
+
+    #[test]
+    fn test_token() {
+        assert!(matches!(
+            token::<_, VerboseError<&str>>(""),
+            Err(OutCome::Error(_))
+        ));
+        assert_eq!(token::<_, VerboseError<&str>>("mbbb"), Ok(("", "mbbb")));
+        assert_eq!(token::<_, VerboseError<&str>>("a,"), Ok((",", "a")));
+        assert!(matches!(
+            token::<_, VerboseError<&str>>(","),
+            Err(OutCome::Error(_))
+        ));
+    }
 }
