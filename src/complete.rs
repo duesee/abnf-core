@@ -1,6 +1,6 @@
 //! ABNF Core Rules (RFC5234 B.1.)
 
-use std::ops::{RangeFrom, RangeTo};
+use core::ops::{RangeFrom, RangeTo};
 
 use nom::{
     character::complete::satisfy,

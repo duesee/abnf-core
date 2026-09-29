@@ -4,6 +4,8 @@
 //! See <https://tools.ietf.org/html/rfc5234#appendix-B.1>
 //!
 
+#![no_std]
+
 pub mod complete;
 pub mod streaming;
 
